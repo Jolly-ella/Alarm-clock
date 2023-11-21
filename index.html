@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Lugrasimo&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <title>alarm Clock</title>
+
+</head>
+
+<body>
+
+
+
+    <div hidden id="modal">
+        <h1 id="ourContex"></h1>
+        <button class="btn btn-danger" onclick="closeModal()">Stop Alarm</button>
+        <button class="btn btn-info" onclick="snoozeAlarm()">Snooze Alarm</button>
+        <p id="snoozeText"></p>
+    </div>
+
+    <div id="container">
+        <p id="alarmText">Alarm Clock</p>
+        <h2 id=""></h2>
+        <p id="times"></p><span id="period"></span>
+
+        <div id="container2">
+            <input type="number" id="hourSet" placeholder="Enter hours here">
+            <input type="number" id="minuteSet" placeholder="Enter Minutes here">
+            <input type="number" id="secondSet" placeholder="Enter Seconds here">
+            <input type="text" id="description" placeholder="Description">
+        </div>
+
+        <div><button id="setBtn" onclick="setAlarm()">Set Alarm</button></div>
+        <p id="setText"></p>
+    </div>
+
+
+
+
+    <script>
+        const containerBefore = document.querySelector('#container::before');
+
+        function showClock() {
+            let date = new Date()
+            let hourTime = String(date.getHours()).padStart(2, 0)
+            let minuteTime = String(date.getMinutes()).padStart(2, 0)
+            let secondTime = String(date.getSeconds()).padStart(2, 0)
+
+
+            times.innerHTML = `${hourTime} : ${minuteTime} : ${secondTime} `
+
+            period.innerHTML = (hourTime >= 12) ? 'PM' : 'AM';
+
+
+        }
+
+        setInterval(() => {
+            showClock()
+        }, 100)
+
+
+
+        let alarmInterval; 
+
+
+        function setAlarm() {
+            setText.innerHTML = 'Your alarm has been set'
+
+            let hour = hourSet.value;
+            let minute = minuteSet.value;
+            let second = secondSet.value;
+
+            const ourInterval = setInterval(() => {
+                let date = new Date();
+                let ourHour = date.getHours();
+                let ourMinute = date.getMinutes();
+                let ourSecond = date.getSeconds();
+
+
+                if (hour == ourHour && minute == ourMinute && second == ourSecond) {
+                    modal.hidden = false
+                    ourContex.innerHTML = description.value
+                    audio.play()
+
+                    audio.loop = true
+                    container.classList.add('anime')
+
+                    clearTimeout(ourInterval)
+
+                }
+            }, 1000);
+
+        }
+
+
+        function closeModal() {
+            audio.pause();
+            audio.currentTime = 0;
+            modal.hidden = true;
+            setText.innerHTML = '';
+            container.classList.remove('anime');
+            hourSet.value = '';
+            minuteSet.value = '';
+            secondSet.value = '';
+            description.value = '';
+        }
+
+
+        function snoozeAlarm() {
+            clearTimeout(alarmInterval);
+
+            let addedTime = 10;
+
+            let date = new Date();
+
+            let currentHour = parseInt(date.getHours());
+            let currentMinute = parseInt(date.getMinutes());
+            let currentSecond = parseInt(date.getSeconds());
+
+            let totalSeconds = currentHour * 3600 + currentMinute * 60 + currentSecond;
+            totalSeconds += addedTime;
+
+            let snoozedHours = Math.floor(totalSeconds / 3600) % 24;
+            let snoozedMinutes = Math.floor(totalSeconds / 60) % 60;
+            let snoozedSeconds = totalSeconds % 60;
+
+            hourSet.value = snoozedHours;
+            minuteSet.value = snoozedMinutes;
+            secondSet.value = snoozedSeconds;
+
+            audio.pause();
+            audio.currentTime = 0;
+            container.classList.remove('anime')
+
+            setAlarm()
+            setText.innerHTML = 'Your alarm has been snoozed';
+
+        }
+
+        const audio = new Audio('alarm-song.mp3');
+
+
+
+    </script>
+
+</body>
+
+</html>
